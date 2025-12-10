@@ -5,26 +5,42 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import id.app.ddwancan.R
 import id.app.ddwancan.ui.theme.DDwancanTheme
+
+// Warna utama aplikasi
+val PrimaryBlue = Color(0xFF2678FF)
 
 /* ============================================================
    ACTIVITY
@@ -37,224 +53,255 @@ class EditProfileActivity : ComponentActivity() {
 }
 
 /* ============================================================
-   MAIN SCREEN
+   MAIN EDIT PROFILE SCREEN
 ============================================================ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileScreen() {
     Scaffold(
         topBar = { EditProfileTopBar() },
-        bottomBar = { EditProfileBottomNav() }
+        bottomBar = { ProfileBottomBar() }, // Menggunakan BottomBar yang sama agar konsisten
+        containerColor = Color.White
     ) { innerPadding ->
         EditProfileContent(Modifier.padding(innerPadding))
     }
 }
 
 /* ============================================================
-   TOP APP BAR (Back — Edit Profil — Settings)
+   TOP APP BAR (Judul Berubah, Tanpa Icon Setting)
 ============================================================ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileTopBar() {
     CenterAlignedTopAppBar(
         navigationIcon = {
-            IconButton(onClick = { /* TODO */ }) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+            IconButton(onClick = { /* TODO: Handle Back navigation */ }) {
+                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
             }
         },
         title = {
             Text(
-                "Edit Profil",
-                fontWeight = FontWeight.SemiBold,
+                text = "Edit Profil",
                 fontSize = 20.sp,
+                fontWeight = FontWeight.SemiBold,
                 color = Color.White
             )
         },
-        actions = {
-            IconButton(onClick = { /* TODO */ }) {
-                Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.White)
-            }
-        },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = Color(0xFF2678FF)
+            containerColor = PrimaryBlue
         )
     )
 }
 
 /* ============================================================
-   MAIN CONTENT
+   EDIT PROFILE CONTENT
 ============================================================ */
 @Composable
 fun EditProfileContent(modifier: Modifier = Modifier) {
 
+    // Data State untuk Input
+    // Menggunakan nilai contoh seperti di gambar
     var name by remember { mutableStateOf("71220197_reader") }
     var email by remember { mutableStateOf("GianP@students.ukdw.ac.id") }
-    var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("password123") } // Contoh password
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 20.dp),
+            .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(30.dp))
 
-        EditProfileAvatar()
+        // Bagian Foto dan Ganti Foto
+        ProfileAvatarSection()
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(40.dp))
 
-        Text("@71220917_GianP", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+        // --- FORM INPUT ---
 
-        Spacer(Modifier.height(4.dp))
-
-        Text(
-            "Change Image",
-            color = Color(0xFF2678FF),
-            fontSize = 13.sp,
-            modifier = Modifier.clickable { /* TODO */ }
+        // Input Name
+        ProfileInputRow(
+            label = "Name :",
+            value = name,
+            onValueChange = { name = it },
+            icon = Icons.Outlined.Person
         )
 
         Spacer(Modifier.height(24.dp))
 
-        ProfileEditField(label = "Name :", icon = Icons.Default.Person, value = name) {
-            name = it
-        }
-        Spacer(Modifier.height(12.dp))
+        // Input Email
+        ProfileInputRow(
+            label = "Email :",
+            value = email,
+            onValueChange = { email = it },
+            icon = Icons.Outlined.Email,
+            keyboardType = KeyboardType.Email
+        )
 
-        ProfileEditField(label = "Email :", icon = Icons.Default.Email, value = email) {
-            email = it
-        }
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(24.dp))
 
-        ProfileEditField(
+        // Input Confirm Password (BARU)
+        // Menggunakan visualTransformation untuk mengubah teks jadi titik
+        ProfileInputRow(
             label = "Confirm Password :",
-            icon = Icons.Default.Lock,
-            value = password,
-            isPassword = true
-        ) {
-            password = it
-        }
+            value = confirmPassword,
+            onValueChange = { confirmPassword = it },
+            icon = Icons.Outlined.Lock,
+            keyboardType = KeyboardType.Password,
+            visualTransformation = PasswordVisualTransformation()
+        )
 
-        Spacer(Modifier.height(30.dp))
+        Spacer(Modifier.height(50.dp))
 
-        SaveCancelButtons()
+        // --- TOMBOL AKSI (SIMPAN & BATAL) ---
+        ActionButtons()
+
+        Spacer(Modifier.height(30.dp)) // Spacer tambahan di bawah agar tidak terlalu mepet bottom bar
     }
 }
 
 /* ============================================================
-   PROFILE AVATAR (Bulat + Border Biru)
+   AVATAR SECTION WITH CHANGE TEXT
 ============================================================ */
 @Composable
-fun EditProfileAvatar() {
-    val borderColor = Color(0xFF2678FF)
-    val borderWidth = 4.dp
-    val size = 110.dp
+fun ProfileAvatarSection() {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        // Menggunakan komponen Avatar yang sama
+        ProfileAvatar()
 
-    Box(modifier = Modifier.size(size), contentAlignment = Alignment.Center) {
-        Box(
-            modifier = Modifier
-                .size(size)
-                .clip(CircleShape)
-                .background(borderColor)
-                .padding(borderWidth)
-        ) {
-            Image(
-                painter = painterResource(R.drawable.profilefoto),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(CircleShape)
-            )
-        }
+        Spacer(Modifier.height(12.dp))
+
+        // Username Handle
+        Text(
+            text = "@71220917_GianP",
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 16.sp,
+            color = Color.Black
+        )
+
+        Spacer(Modifier.height(8.dp))
+
+        // Teks "Change Image" yang bisa diklik
+        Text(
+            text = "Change Image",
+            color = PrimaryBlue,
+            fontSize = 14.sp,
+            textDecoration = TextDecoration.Underline,
+            modifier = Modifier.clickable { /* TODO: Handle change image */ }
+        )
     }
 }
 
 /* ============================================================
-   TEXT FIELD ROW
+   CUSTOM INPUT ROW (Reusable)
+   - Ditambahkan parameter untuk Password dan Keyboard Type
 ============================================================ */
 @Composable
-fun ProfileEditField(
+fun ProfileInputRow(
     label: String,
-    icon: ImageVector,
     value: String,
-    isPassword: Boolean = false,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    icon: ImageVector,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    visualTransformation: VisualTransformation = VisualTransformation.None
 ) {
-    Column(Modifier.fillMaxWidth()) {
-
-        Text(label, fontSize = 13.sp, color = Color.Gray)
-
+    Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.height(45.dp)
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Icon(icon, contentDescription = null, tint = Color.Black)
+            // Ikon di sebelah kiri
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(30.dp),
+                tint = Color.Black
+            )
 
-            Spacer(Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(16.dp))
 
-            OutlinedTextField(
-                value = value,
-                onValueChange = { onValueChange(it) },
-                modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = Color.Transparent,
-                    focusedBorderColor = Color.Transparent
-                ),
-                shape = RoundedCornerShape(0.dp),
-                textStyle = LocalTextStyle.current.copy(fontSize = 15.sp),
-                singleLine = true,
-                visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None
+            Column(modifier = Modifier.weight(1f)) {
+                // Label kecil di atas
+                Text(
+                    text = label,
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // TextField tanpa border (Editable)
+                BasicTextField(
+                    value = value,
+                    onValueChange = onValueChange,
+                    textStyle = TextStyle(
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Black
+                    ),
+                    keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+                    visualTransformation = visualTransformation, // Untuk password
+                    cursorBrush = SolidColor(PrimaryBlue),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Garis pemisah di bawah
+        HorizontalDivider(
+            thickness = 1.dp,
+            color = Color.LightGray
+        )
+    }
+}
+
+
+/* ============================================================
+   ACTION BUTTONS (SIMPAN & BATAL)
+============================================================ */
+@Composable
+fun ActionButtons() {
+    // Ukuran tombol seragam
+    val buttonModifier = Modifier
+        .fillMaxWidth()
+        .height(50.dp)
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(16.dp), // Jarak antar tombol
+        modifier = Modifier.padding(horizontal = 20.dp) // Padding kiri kanan agar tidak full width
+    ) {
+        // Tombol SIMPAN (Biru)
+        Button(
+            onClick = { /* TODO: Handle Simpan */ },
+            colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue),
+            modifier = buttonModifier,
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text(
+                "SIMPAN",
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp,
+                color = Color.White
             )
         }
 
-        Divider(color = Color(0xFFE0E0E0), thickness = 1.dp)
-    }
-}
-
-/* ============================================================
-   SAVE & CANCEL BUTTONS
-============================================================ */
-@Composable
-fun SaveCancelButtons() {
-    Button(
-        onClick = { /* TODO */ },
-        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2678FF)),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(48.dp),
-        shape = RoundedCornerShape(8.dp)
-    ) {
-        Text("SIMPAN", color = Color.White, fontWeight = FontWeight.Bold)
-    }
-
-    Spacer(Modifier.height(10.dp))
-
-    Button(
-        onClick = { /* TODO */ },
-        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD9D9D9)),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(48.dp),
-        shape = RoundedCornerShape(8.dp)
-    ) {
-        Text("BATAL", color = Color.Black, fontWeight = FontWeight.Medium)
-    }
-}
-
-/* ============================================================
-   BOTTOM NAV
-============================================================ */
-@Composable
-fun EditProfileBottomNav() {
-    Column {
-        Divider(color = Color(0xFFE0E0E0), thickness = 1.dp)
-        NavigationBar(containerColor = Color.White) {
-            NavItem(Icons.Default.Home, "Home")
-            NavItem(Icons.Default.Favorite, "Favorite")
-            NavItem(Icons.Default.Search, "Search")
-            NavItem(Icons.Default.Person, "Profile", selected = true)
+        // Tombol BATAL (Abu-abu terang)
+        Button(
+            onClick = { /* TODO: Handle Batal */ },
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE0E0E0)), // Warna abu terang
+            modifier = buttonModifier,
+            shape = RoundedCornerShape(8.dp),
+        ) {
+            Text(
+                "BATAL",
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp,
+                color = Color.Gray // Warna teks abu gelap
+            )
         }
     }
 }

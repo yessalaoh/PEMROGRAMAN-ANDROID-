@@ -4,18 +4,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -28,30 +24,30 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import id.app.ddwancan.R // Pastikan import R sesuai package Anda
+import id.app.ddwancan.R
 import id.app.ddwancan.ui.theme.DDwancanTheme
 
-class SignInActivity : ComponentActivity() {
+class SignUpActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             DDwancanTheme {
-                SignInScreen()
+                SignUpScreen()
             }
         }
     }
 }
 
 @Composable
-fun SignInScreen() {
-    // Warna Utama (Biru)
+fun SignUpScreen() {
+    // Warna Utama (Biru - Konsisten dengan halaman sebelumnya)
     val PrimaryBlue = Color(0xFF1976D2)
 
     // State untuk input
     var emailOrPhone by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
 
-    // Container Utama
     Scaffold(
         containerColor = Color.White
     ) { innerPadding ->
@@ -59,24 +55,24 @@ fun SignInScreen() {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 24.dp), // Margin kiri-kanan
+                .padding(horizontal = 24.dp), // Padding kiri-kanan
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center // Konten berada di tengah layar vertikal
+            verticalArrangement = Arrangement.Center
         ) {
 
-            // 1. LOGO (Menggunakan logo1)
+            // 1. LOGO D'Wacana
             Image(
                 painter = painterResource(id = R.drawable.logo1),
                 contentDescription = "Logo D'Wacana",
                 modifier = Modifier
-                    .width(180.dp) // Sesuaikan ukuran logo
+                    .width(180.dp)
                     .height(80.dp),
                 contentScale = ContentScale.Fit
             )
 
-            Spacer(modifier = Modifier.height(60.dp))
+            Spacer(modifier = Modifier.height(50.dp))
 
-            // 2. INPUT FIELD: Phone / Email
+            // 2. INPUT: Phone / Email
             OutlinedTextField(
                 value = emailOrPhone,
                 onValueChange = { emailOrPhone = it },
@@ -93,14 +89,14 @@ fun SignInScreen() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 3. INPUT FIELD: Password
+            // 3. INPUT: Password
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
                 label = { Text("Password", color = Color.Gray) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(8.dp),
-                visualTransformation = PasswordVisualTransformation(), // Ubah teks jadi titik
+                visualTransformation = PasswordVisualTransformation(), // Menjadi titik-titik
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = PrimaryBlue,
@@ -110,11 +106,30 @@ fun SignInScreen() {
                 singleLine = true
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // 4. BUTTON: Login
+            // 4. INPUT: Confirm Password
+            OutlinedTextField(
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it },
+                label = { Text("Confirm Password", color = Color.Gray) },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                visualTransformation = PasswordVisualTransformation(), // Menjadi titik-titik
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = PrimaryBlue,
+                    unfocusedBorderColor = Color.LightGray,
+                    cursorColor = PrimaryBlue
+                ),
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.height(30.dp))
+
+            // 5. BUTTON: Sign Up
             Button(
-                onClick = { /* TODO: Handle Login */ },
+                onClick = { /* TODO: Handle Sign Up */ },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
@@ -122,77 +137,45 @@ fun SignInScreen() {
                 colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
             ) {
                 Text(
-                    text = "Login",
+                    text = "Sign Up",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            // 5. TEXT: Forgot Password?
-            Text(
-                text = "Forgot Password?",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.Black,
-                modifier = Modifier.clickable { /* TODO */ }
-            )
+            // 6. FOOTER: Already have an account? Log In
+            val annotatedString = buildAnnotatedString {
+                append("Already have an account?\n") // Menggunakan \n agar "Log In" di bawah jika layar sempit, atau spasi jika ingin satu baris
+                // Di gambar terlihat centeraligned, kita gunakan text biasa
+            }
 
-            Spacer(modifier = Modifier.height(40.dp))
-
-            // 6. SECTION: Sign in with
-            Text(
-                text = "Sign in with",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Google Icon using a Text 'G'
-            Box(
-                modifier = Modifier
-                    .size(50.dp)
-                    .clip(CircleShape)
-                    .border(1.dp, Color.LightGray, CircleShape)
-                    .background(Color.White)
-                    .clickable { /* TODO: Google Login */ },
-                contentAlignment = Alignment.Center
-            ) {
+            // Layout teks footer agar rapi di tengah
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = "G",
-                    fontSize = 32.sp,
+                    text = "Already have an account?",
+                    fontSize = 14.sp,
+                    color = Color.Black
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Log In",
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF4285F4) // Google Blue
+                    color = PrimaryBlue,
+                    modifier = Modifier.clickable { /* TODO: Navigate to Login */ }
                 )
             }
-
-            Spacer(modifier = Modifier.height(40.dp))
-
-            // 7. FOOTER: Don't have an account? Sign Up
-            val annotatedString = buildAnnotatedString {
-                append("Don't have an account? ")
-                withStyle(style = SpanStyle(color = PrimaryBlue, fontWeight = FontWeight.Bold)) {
-                    append("Sign Up")
-                }
-            }
-
-            Text(
-                text = annotatedString,
-                fontSize = 14.sp,
-                modifier = Modifier.clickable { /* TODO: Navigate to Sign Up */ }
-            )
         }
     }
 }
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun PreviewSignIn() {
+fun PreviewSignUp() {
     DDwancanTheme {
-        SignInScreen()
+        SignUpScreen()
     }
 }

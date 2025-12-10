@@ -5,20 +5,26 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -44,7 +50,8 @@ class ProfileActivity : ComponentActivity() {
 fun ProfileScreen() {
     Scaffold(
         topBar = { ProfileTopBar() },
-        bottomBar = { ProfileBottomBar() }
+        bottomBar = { ProfileBottomBar() },
+        containerColor = Color.White // Pastikan background putih bersih
     ) { innerPadding ->
         ProfileContent(Modifier.padding(innerPadding))
     }
@@ -86,34 +93,119 @@ fun ProfileTopBar() {
 ============================================================ */
 @Composable
 fun ProfileContent(modifier: Modifier = Modifier) {
+
+    // Data State
+    var name by remember { mutableStateOf("71220197_GianP") }
+    var email by remember { mutableStateOf("GianP@students.ukdw.ac.id") }
+
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 24.dp), // Padding kiri-kanan agar rapi
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(30.dp))
 
         ProfileAvatar()
 
-        Spacer(Modifier.height(10.dp))
+        Spacer(Modifier.height(16.dp))
 
+        // Username Handle di bawah foto
         Text(
             text = "@71220917_GianP",
             fontWeight = FontWeight.SemiBold,
-            fontSize = 16.sp
+            fontSize = 16.sp,
+            color = Color.Black
+        )
+
+        Spacer(Modifier.height(40.dp))
+
+        // 🔵 BAGIAN TEXTFIELD YANG DIPERBAIKI (Desain Custom)
+
+        // Input Name
+        ProfileInputRow(
+            label = "Name :",
+            value = name,
+            onValueChange = { name = it },
+            icon = Icons.Outlined.Person
         )
 
         Spacer(Modifier.height(24.dp))
 
-        ProfileInfoCard(icon = Icons.Default.Person, label = "Name :", value = "71220197_GianP")
-        Spacer(Modifier.height(12.dp))
-        ProfileInfoCard(icon = Icons.Default.Email, label = "Email :", value = "GianP@students.ukdw.ac.id")
+        // Input Email
+        ProfileInputRow(
+            label = "Email :",
+            value = email,
+            onValueChange = { email = it },
+            icon = Icons.Outlined.Email
+        )
 
-        Spacer(Modifier.height(40.dp))
+        Spacer(Modifier.height(50.dp))
 
         EditProfileButton()
+    }
+}
+
+/* ============================================================
+   CUSTOM INPUT ROW (Sesuai Desain Figma)
+============================================================ */
+@Composable
+fun ProfileInputRow(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    icon: ImageVector
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            // Ikon di sebelah kiri (Lingkaran hitam tebal/Outline)
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(32.dp),
+                tint = Color.Black
+            )
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                // Label kecil di atas ("Name :")
+                Text(
+                    text = label,
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // TextField tanpa border kotak, hanya teks (Editable)
+                BasicTextField(
+                    value = value,
+                    onValueChange = onValueChange,
+                    textStyle = TextStyle(
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Black
+                    ),
+                    cursorBrush = SolidColor(Color(0xFF2678FF)), // Kursor warna biru
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Garis pemisah di bawah (Divider)
+        HorizontalDivider(
+            thickness = 1.dp,
+            color = Color.LightGray
+        )
     }
 }
 
@@ -123,71 +215,45 @@ fun ProfileContent(modifier: Modifier = Modifier) {
 @Composable
 fun ProfileAvatar() {
     val borderColor = Color(0xFF2678FF)
-    val borderWidth = 4.dp
+    val borderWidth = 3.dp
     val avatarSize = 110.dp
 
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.size(avatarSize)
     ) {
-        // BORDER LUAR BIRU
+        // Border Biru
         Box(
             modifier = Modifier
                 .size(avatarSize)
                 .clip(CircleShape)
-                .background(borderColor)
-                .padding(borderWidth)
+                .background(Color.White) // Jarak putih antara foto dan border
+                .border(borderWidth, borderColor, CircleShape)
+                .padding(borderWidth) // Padding agar foto tidak menempel border
         ) {
-            // FOTO PROFIL BULAT
+            // Foto Profil
             Image(
-                painter = painterResource(R.drawable.profilefoto),
+                painter = painterResource(R.drawable.profilefoto), // Pastikan nama file sesuai
                 contentDescription = "Profile Photo",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(CircleShape)
-                    .background(Color.LightGray, CircleShape)
             )
         }
-    }
-}
-
-
-/* ============================================================
-   USER INFO ROW
-============================================================ */
-@Composable
-fun ProfileInfoCard(icon: ImageVector, label: String, value: String) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.White)
-    ) {
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                icon,
-                contentDescription = null,
-                tint = Color.Black,
-                modifier = Modifier.size(22.dp)
-            )
-
-            Spacer(Modifier.width(8.dp))
-
-            Column {
-                Text(label, fontSize = 12.sp, color = Color.Gray)
-                Text(value, fontSize = 14.sp, fontWeight = FontWeight.Medium)
-            }
-        }
-
-        Spacer(Modifier.height(8.dp))
-
-        Divider(color = Color(0xFFE0E0E0), thickness = 1.dp)
     }
 }
 
 /* ============================================================
    EDIT PROFILE BUTTON
+============================================================ */
+/* ============================================================
+   EDIT PROFILE BUTTON (UPDATED)
+   Disamakan formatnya dengan tombol Simpan/Batal
+============================================================ */
+/* ============================================================
+   EDIT PROFILE BUTTON (FIXED)
+   Ukuran disamakan persis dengan Action Button (Simpan)
 ============================================================ */
 @Composable
 fun EditProfileButton() {
@@ -195,32 +261,58 @@ fun EditProfileButton() {
         onClick = { /* TODO */ },
         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2678FF)),
         modifier = Modifier
-            .width(150.dp)           // ⬅️ Lebar tombol diperkecil
-            .height(48.dp),   // Posisi berada di tengah
+            // Menambahkan padding 20.dp di kiri-kanan agar lebarnya menyusut
+            // sama persis seperti container tombol 'Simpan' di EditProfileActivity
+            .padding(horizontal = 20.dp)
+            .fillMaxWidth()
+            .height(50.dp),
         shape = RoundedCornerShape(8.dp)
     ) {
         Text(
-            "EDIT PROFIL",
+            text = "EDIT PROFIL",
             fontWeight = FontWeight.Bold,
+            fontSize = 14.sp,
             color = Color.White
         )
     }
 }
-
-
 /* ============================================================
    BOTTOM NAVIGATION
 ============================================================ */
 @Composable
 fun ProfileBottomBar() {
     Column {
-        Divider(color = Color(0xFFE0E0E0), thickness = 1.dp)
+        HorizontalDivider(color = Color(0xFFE0E0E0), thickness = 1.dp)
 
         NavigationBar(containerColor = Color.White) {
-            NavItem(Icons.Default.Home, "Home")
-            NavItem(Icons.Default.Favorite, "Favorite")
-            NavItem(Icons.Default.Search, "Search")
-            NavItem(Icons.Default.Person, "Profile", selected = true)
+            NavigationBarItem(
+                icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
+                label = { Text("Home") },
+                selected = false,
+                onClick = {}
+            )
+            NavigationBarItem(
+                icon = { Icon(Icons.Default.Favorite, contentDescription = "Favorite") },
+                label = { Text("Favorite") },
+                selected = false,
+                onClick = {}
+            )
+            NavigationBarItem(
+                icon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+                label = { Text("Search") },
+                selected = false,
+                onClick = {}
+            )
+            NavigationBarItem(
+                icon = { Icon(Icons.Default.Person, contentDescription = "Profile") },
+                label = { Text("Profile") },
+                selected = true,
+                onClick = {},
+                colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = Color(0xFFE3F2FD),
+                    selectedIconColor = Color(0xFF2678FF)
+                )
+            )
         }
     }
 }

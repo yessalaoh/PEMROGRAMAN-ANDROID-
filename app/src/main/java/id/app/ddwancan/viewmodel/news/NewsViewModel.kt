@@ -1,4 +1,4 @@
-package id.app.ddwancan.viewmodel
+package id.app.ddwancan.viewmodel.news
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

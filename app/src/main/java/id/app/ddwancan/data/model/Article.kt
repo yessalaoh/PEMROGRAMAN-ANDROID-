@@ -1,4 +1,4 @@
-//package id.app.ddwancan.domain.model
+//package id.app.ddwancan.data.model
 //
 //data class Article(
 //    val id: Int,
@@ -8,7 +8,7 @@
 //    val newsSite: String,
 //    val publishedAt: String
 //)
-package id.app.ddwancan.domain.model
+package id.app.ddwancan.data.model
 
 import com.google.gson.annotations.SerializedName
 

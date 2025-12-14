@@ -1,4 +1,4 @@
-package com.example.newsapp.data.remote.dto
+package id.app.ddwancan.data.model
 
 data class PaginatedResponse(
     val count: Int,

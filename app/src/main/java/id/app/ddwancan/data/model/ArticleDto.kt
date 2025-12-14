@@ -1,4 +1,4 @@
-package id.app.ddwancan.data.remote.dto
+package id.app.ddwancan.data.model
 
 import com.google.gson.annotations.SerializedName
 
